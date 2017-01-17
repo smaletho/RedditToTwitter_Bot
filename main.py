@@ -7,12 +7,50 @@ import OAuth2Util
 import datetime
 import requests
 import json
+from tweepy.streaming import StreamListener
+from tweepy import Stream
+
+
+
+class PyStreamListener(StreamListener):
+    def __init__(self, client):
+        self.client = client
+        self.do_action = True
+        super(PyStreamListener, self).__init__()
+
+    def on_data(self, data):
+        if self.do_action:
+            tweet = json.loads(data)
+            try:
+                publish = True
+
+                if tweet.get('lang') and tweet.get('lang') != 'en':
+                    publish = False
+
+                if publish:
+                    self.client.retweet(tweet['id'])
+                    print(tweet['text'])
+
+
+            except Exception as ex:
+                print(ex)
+
+            return True
+        else:
+            return False
+
+    def on_error(self, status):
+        print(status)
+
+
+
 
 def SetUpTwitter():
     auth = tweepy.OAuthHandler(TwitterKeys.consumer_key, TwitterKeys.consumer_secret)
     auth.set_access_token(TwitterKeys.access_token, TwitterKeys.access_secret)
     api = tweepy.API(auth)
-    return api
+    return {"api" : api, "auth_handler": auth }
+
 
 def TwitterHandleFromPK(opponent):
     # Carolina
@@ -168,20 +206,94 @@ def PromoteGdtPost():
             gdtLink = post.short_link
             break
 
+    print("got gdt link, " + gdtLink)
 
+    twitter = SetUpTwitter()
+    print("twitter set")
 
     if gdtLink != "":
-        api = SetUpTwitter()
-        print("twitter set")
-        api.update_status(GetGdtTweetText(gdtLink))
+        twitter['api'].update_status(GetGdtTweetText(gdtLink))
         print("made post")
-        # create twitter post
 
+
+
+def GameTimeStream():
+    today = datetime.datetime.today().strftime("%Y-%m-%d")
+
+    url = "https://statsapi.web.nhl.com/api/v1/schedule?season=20162017&teamId=17&startDate=" \
+          + today + "&endDate=" + today
+
+    response = requests.get(url)
+    data = json.loads(response.content.decode("utf-8"))
+
+    pk = str(data['dates'][0]['games'][0]['gamePk'])
+
+    print("Got game PK")
+
+    twitter = SetUpTwitter()
+    twitter_client = tweepy.API(twitter['auth_handler'])
+
+    listener = PyStreamListener(twitter_client)
+    stream = Stream(twitter['auth_handler'], listener)
+
+    # Follow Khan before gametime
+    print("Tweeting during game time")
+    stream.filter(follow=["429897945", "16826656"], async=True)
+
+    GameOver = False
+    while not GameOver:
+        feedUrl = "https://statsapi.web.nhl.com/api/v1/game/" + pk + "/feed/live"
+        response = requests.get(feedUrl)
+        data = json.loads(response.content.decode("utf-8"))
+
+        if data['gameData']['status']['abstractGameState'] == 'Final':
+            print("game over")
+            listener.do_action = False
+            GameOver = True
+
+        time.sleep(10)
+
+
+
+
+def StartStream():
+    today = datetime.datetime.today().strftime("%Y-%m-%d")
+
+    url = "https://statsapi.web.nhl.com/api/v1/schedule?season=20162017&teamId=17&startDate=" \
+          + today + "&endDate=" + today
+
+    response = requests.get(url)
+    data = json.loads(response.content.decode("utf-8"))
+
+    gameTime = datetime.datetime.strptime(data['dates'][0]['games'][0]['gameDate'], "%Y-%m-%dT%H:%M:%SZ")
+    gameTime = gameTime - datetime.timedelta(hours=5)
+
+
+    print("Got game time")
+
+
+    twitter = SetUpTwitter()
+    twitter_client = tweepy.API(twitter['auth_handler'])
+
+    listener = PyStreamListener(twitter_client)
+    stream = Stream(twitter['auth_handler'], listener)
+
+    # Follow Khan before gametime
+    print("started Khan RTer")
+    stream.filter(follow=["429897945"], async=True)
+
+    while gameTime > datetime.datetime.now:
+        time.sleep(300)
+    print("Action stopped")
+    listener.do_action = False
+
+    GameTimeStream()
 
 if __name__ == '__main__':
 
-    # Ran each day at 10am
-    PromoteGdtPost()
 
     if IsGameToday():
+        print("game today")
         PromoteGdtPost()
+        StartStream()
+
