@@ -24,6 +24,9 @@ class PyStreamListener(StreamListener):
             try:
                 publish = True
 
+                if tweet['in_reply_to_screen_name'] is not None:
+                    publish = False
+
                 if tweet.get('lang') and tweet.get('lang') != 'en':
                     publish = False
 
@@ -281,7 +284,7 @@ def StartStream():
     print("started Khan RTer")
     stream.filter(follow=["429897945"], async=True)
 
-    while gameTime > datetime.datetime.now:
+    while gameTime > datetime.datetime.now():
         time.sleep(300)
     print("Action stopped")
     listener.do_action = False
@@ -293,6 +296,6 @@ if __name__ == '__main__':
 
     if IsGameToday():
         print("game today")
-        PromoteGdtPost()
+        #PromoteGdtPost()
         StartStream()
 
