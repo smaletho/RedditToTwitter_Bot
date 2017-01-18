@@ -164,10 +164,9 @@ def GetGameTime(data):
 def GetGdtTweetText(link):
     today = datetime.datetime.today().strftime("%Y-%m-%d")
 
-    #url = "https://statsapi.web.nhl.com/api/v1/schedule?season=20162017&teamId=17&startDate=" \
-          #+ today + "&endDate=" + today
+    url = "https://statsapi.web.nhl.com/api/v1/schedule?season=20162017&teamId=17&startDate=" \
+          + today + "&endDate=" + today
 
-    url = "https://statsapi.web.nhl.com/api/v1/schedule?season=20162017&teamId=17&startDate=2017-01-16&endDate=2017-01-16"
 
     response = requests.get(url)
     data = json.loads(response.content.decode("utf-8"))
