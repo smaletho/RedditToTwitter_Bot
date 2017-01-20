@@ -255,8 +255,10 @@ def GameTimeStream():
 
         time.sleep(10)
 
+    # Promote PGT
 
-
+    # "Tough loss, boys...Check out our Post Game Thread for box scores, highlights, and more."
+    # "Great win, boys! Check out our Post Game Thread for box scores, highlights, and more!
 
 def StartStream():
     today = datetime.datetime.today().strftime("%Y-%m-%d")
