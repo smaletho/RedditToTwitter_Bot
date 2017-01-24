@@ -298,6 +298,6 @@ if __name__ == '__main__':
 
     if IsGameToday():
         print("game today")
-        #PromoteGdtPost()
+        PromoteGdtPost()
         StartStream()
 
