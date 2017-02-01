@@ -214,8 +214,11 @@ def PromoteGdtPost():
     print("twitter set")
 
     if gdtLink != "":
-        twitter['api'].update_status(GetGdtTweetText(gdtLink))
-        print("made post")
+        try:
+            twitter['api'].update_status(GetGdtTweetText(gdtLink))
+            print("made post")
+        except:
+            print("already made this status")
 
 
 
