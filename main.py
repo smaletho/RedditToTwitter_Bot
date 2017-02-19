@@ -303,4 +303,6 @@ if __name__ == '__main__':
         print("game today")
         PromoteGdtPost()
         StartStream()
+    else:
+        print("no game, no twitter stream")
 
