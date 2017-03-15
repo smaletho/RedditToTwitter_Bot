@@ -1,4 +1,5 @@
 import TwitterKeys
+import TimeSeason
 
 import time
 import tweepy
@@ -161,13 +162,13 @@ def GetOpponent(data):
 
 def GetGameTime(data):
     d = datetime.datetime.strptime(data['dates'][0]['games'][0]['gameDate'], "%Y-%m-%dT%H:%M:%SZ")
-    d = d + datetime.timedelta(hours=-5)
+    d = d + datetime.timedelta(hours=-TimeSeason.GetHoursOffUtc())
     return d.strftime("%I:%M%p EST")
 
 def GetGdtTweetText(link):
     today = datetime.datetime.today().strftime("%Y-%m-%d")
 
-    url = "https://statsapi.web.nhl.com/api/v1/schedule?season=20162017&teamId=17&startDate=" \
+    url = "https://statsapi.web.nhl.com/api/v1/schedule?season=" + TimeSeason.GetCurrentSeason() + "&teamId=17&startDate=" \
           + today + "&endDate=" + today
 
 
@@ -185,7 +186,7 @@ def GetGdtTweetText(link):
 def IsGameToday():
     today = datetime.datetime.today().strftime("%Y-%m-%d")
 
-    url = "https://statsapi.web.nhl.com/api/v1/schedule?season=20162017&teamId=17&startDate=" \
+    url = "https://statsapi.web.nhl.com/api/v1/schedule?season=" + TimeSeason.GetCurrentSeason() + "&teamId=17&startDate=" \
           + today + "&endDate=" + today
 
     response = requests.get(url)
@@ -225,7 +226,7 @@ def PromoteGdtPost():
 def GameTimeStream():
     today = datetime.datetime.today().strftime("%Y-%m-%d")
 
-    url = "https://statsapi.web.nhl.com/api/v1/schedule?season=20162017&teamId=17&startDate=" \
+    url = "https://statsapi.web.nhl.com/api/v1/schedule?season=" + TimeSeason.GetCurrentSeason() + "&teamId=17&startDate=" \
           + today + "&endDate=" + today
 
     response = requests.get(url)
@@ -266,7 +267,7 @@ def GameTimeStream():
 def StartStream():
     today = datetime.datetime.today().strftime("%Y-%m-%d")
 
-    url = "https://statsapi.web.nhl.com/api/v1/schedule?season=20162017&teamId=17&startDate=" \
+    url = "https://statsapi.web.nhl.com/api/v1/schedule?season=" + TimeSeason.GetCurrentSeason() + "&teamId=17&startDate=" \
           + today + "&endDate=" + today
 
     response = requests.get(url)
