@@ -244,7 +244,7 @@ def GameTimeStream():
 
     # Follow Khan before gametime
     print("Tweeting during game time")
-    stream.filter(follow=["429897945", "16826656"], async=True)
+    stream.filter(follow=["16826656"], async=True)
 
     GameOver = False
     while not GameOver:
@@ -286,14 +286,14 @@ def StartStream():
     listener = PyStreamListener(twitter_client)
     stream = Stream(twitter['auth_handler'], listener)
 
-    # Follow Khan before gametime
-    print("started Khan RTer")
-    stream.filter(follow=["429897945"], async=True)
-
-    while gameTime > datetime.datetime.now():
-        time.sleep(300)
-    print("Action stopped")
-    listener.do_action = False
+    # # Follow Khan before gametime
+    # print("started Khan RTer")
+    # stream.filter(follow=["429897945"], async=True)
+    #
+    # while gameTime > datetime.datetime.now():
+    #     time.sleep(300)
+    # print("Action stopped")
+    # listener.do_action = False
 
     GameTimeStream()
 
